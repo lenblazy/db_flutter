@@ -38,7 +38,6 @@ class AppDatabase {
   }
 
   // Future<void> _migrateToVersion2(Database db) async {
-    // await db.execute(DbConstants.queryCreateTblUser);
+  // await db.execute(DbConstants.queryCreateTblUser);
   // }
-
 }
