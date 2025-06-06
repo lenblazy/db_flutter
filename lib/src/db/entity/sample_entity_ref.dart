@@ -5,10 +5,14 @@ class SampleEntityRef {
   String itemOne;
 
   Map<String, dynamic> toJson() {
-    return {'task_id': id, 'task_status': itemOne};
+    return <String, dynamic>{"task_id": id, "task_status": itemOne};
   }
 
   Map<String, dynamic> toMap(String sampleId) {
-    return {'id': id, 'sample_id': sampleId, 'item_two': itemOne};
+    return <String, dynamic>{
+      "id": id,
+      "sample_id": sampleId,
+      "item_two": itemOne,
+    };
   }
 }

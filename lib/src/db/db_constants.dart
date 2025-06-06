@@ -5,19 +5,19 @@ class DbConstants {
   static const String tblSample = "tbl_sample";
   static const String tblSampleRef = "tbl_sample_ref";
 
-  static const String queryCreateTblSample = '''
+  static const String queryCreateTblSample = """
     CREATE TABLE $tblSample (
             id VARCHAR(20) PRIMARY KEY,
             item_one TEXT,
             ) 
-  ''';
+  """;
 
-  static const String queryCreateTblSampleRef = '''
+  static const String queryCreateTblSampleRef = """
     CREATE TABLE $tblSampleRef (
             id VARCHAR(20) PRIMARY KEY,
             sample_id VARCHAR(20),
             item_two TEXT,
             FOREIGN KEY (sampleId) REFERENCES $tblSample (id)
           )
-  ''';
+  """;
 }

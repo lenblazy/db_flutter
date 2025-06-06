@@ -5,10 +5,10 @@ class SampleEntity {
   String itemOne;
 
   Map<String, dynamic> toJson() {
-    return {'task_id': id, 'task_status': itemOne};
+    return <String, dynamic>{"task_id": id, "task_status": itemOne};
   }
 
   Map<String, dynamic> toMap(String checkInId) {
-    return {'id': id, 'item_one': itemOne};
+    return <String, dynamic>{"id": id, "item_one": itemOne};
   }
 }
