@@ -1,7 +1,8 @@
-import "package:db_flutter/db.dart";
-import "package:db_flutter/src/db/sqlite/sqlite_db.dart";
-import "package:db_flutter/src/db/sqlite/sqlite_db_service.dart";
 import "package:injectable/injectable.dart";
+
+import "../../db.dart";
+import "../db/sqlite/sqlite_db.dart";
+import "../db/sqlite/sqlite_db_service.dart";
 
 // coverage:ignore-file
 @module

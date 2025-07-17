@@ -1,6 +1,7 @@
-import "package:db_flutter/src/db/db_constants.dart";
 import "package:path/path.dart";
 import "package:sqflite/sqflite.dart";
+
+import "../db_constants.dart";
 
 // coverage:ignore-file
 class SqliteDb {

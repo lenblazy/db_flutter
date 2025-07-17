@@ -1,8 +1,9 @@
 import "dart:async";
 
-import "package:db_flutter/src/db/db_service.dart";
-import "package:db_flutter/src/db/sqlite/sqlite_db.dart";
 import "package:sqflite_common/sqlite_api.dart";
+
+import "../db_service.dart";
+import "sqlite_db.dart";
 
 class SqliteDbService extends DbService {
   SqliteDbService({required SqliteDb appDb}) : _appDb = appDb;
@@ -12,7 +13,11 @@ class SqliteDbService extends DbService {
   @override
   Future<void> delete(String itemID, String fromTable) async {
     final Database db = await _appDb.database;
-    await db.delete(fromTable, where: "columnId = ?", whereArgs: [itemID]);
+    await db.delete(
+      fromTable,
+      where: "columnId = ?",
+      whereArgs: <Object?>[itemID],
+    );
   }
 
   @override

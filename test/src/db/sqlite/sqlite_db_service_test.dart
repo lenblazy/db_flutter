@@ -23,8 +23,8 @@ void main() {
 
   group("SqliteDbDao", () {
     test("insert calls insert on the database", () async {
-      const table = "test_table";
-      final data = {"key": "value"};
+      const String table = "test_table";
+      final Map<String, String> data = <String, String>{"key": "value"};
 
       when(() => mockDatabase.insert(table, data)).thenAnswer((_) async => 1);
 
@@ -34,8 +34,8 @@ void main() {
     });
 
     test("update calls update on the database", () async {
-      const table = "test_table";
-      final data = {"key": "updatedValue"};
+      const String table = "test_table";
+      final Map<String, String> data = <String, String>{"key": "updatedValue"};
 
       when(() => mockDatabase.update(table, data)).thenAnswer((_) async => 1);
 
@@ -45,42 +45,48 @@ void main() {
     });
 
     test("delete calls delete on the database with correct args", () async {
-      const table = "test_table";
-      const id = "123";
+      const String table = "test_table";
+      const String id = "123";
 
       when(
-        () =>
-            mockDatabase.delete(table, where: "columnId = ?", whereArgs: [id]),
+        () => mockDatabase.delete(
+          table,
+          where: "columnId = ?",
+          whereArgs: <Object?>[id],
+        ),
       ).thenAnswer((_) async => 1);
 
       await sut.delete(id, table);
 
       verify(
-        () =>
-            mockDatabase.delete(table, where: "columnId = ?", whereArgs: [id]),
+        () => mockDatabase.delete(
+          table,
+          where: "columnId = ?",
+          whereArgs: <Object?>[id],
+        ),
       ).called(1);
     });
 
     test("retrieve calls query on the database", () async {
-      const table = "test_table";
-      final fakeData = [
-        {"key": "value"},
+      const String table = "test_table";
+      final List<Map<String, String>> fakeData = <Map<String, String>>[
+        <String, String>{"key": "value"},
       ];
 
       when(() => mockDatabase.query(table)).thenAnswer((_) async => fakeData);
 
-      final result = await sut.retrieve(table);
+      final List<Map<String, Object?>> result = await sut.retrieve(table);
 
       expect(result, fakeData);
       verify(() => mockDatabase.query(table)).called(1);
     });
 
     test("clear calls delete on the database without where clause", () async {
-      const table = "test_table";
+      const String table = "test_table";
 
       when(() => mockDatabase.delete(table)).thenAnswer((_) async => 1);
 
-      final result = await sut.clear(table);
+      final int result = await sut.clear(table);
 
       expect(result, 1);
       verify(() => mockDatabase.delete(table)).called(1);
