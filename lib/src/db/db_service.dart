@@ -1,9 +1,11 @@
 import "dart:async";
 
+import "query_provider.dart";
+
 abstract class DbService {
-  Future<void> insert(String table, Map<String, Object?> data);
-  Future<List<Map<String, Object?>>> retrieve(String fromTable);
-  Future<void> update(String table, Map<String, Object?> data);
-  Future<void> delete(String itemID, String table);
-  Future<void> clear(String table);
+  Future<bool> insert(QueryProvider query);
+  Future<List<Map<String, Object?>>> retrieve(QueryProvider query);
+  Future<bool> update(QueryProvider query);
+  Future<bool> delete(QueryProvider query);
+  Future<bool> clear(QueryProvider query);
 }

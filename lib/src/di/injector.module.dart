@@ -7,7 +7,6 @@
 import 'dart:async' as _i687;
 
 import 'package:db_flutter/db.dart' as _i344;
-import 'package:db_flutter/src/db/sqlite/sqlite_db.dart' as _i975;
 import 'package:db_flutter/src/di/db_module.dart' as _i793;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -16,10 +15,7 @@ class DbFlutterPackageModule extends _i526.MicroPackageModule {
   @override
   _i687.FutureOr<void> init(_i526.GetItHelper gh) {
     final dbModule = _$DbModule();
-    gh.lazySingleton<_i975.SqliteDb>(() => dbModule.sqliteDb());
-    gh.lazySingleton<_i344.DbService>(
-      () => dbModule.dbService(gh<_i975.SqliteDb>()),
-    );
+    gh.lazySingletonAsync<_i344.DbService>(() => dbModule.dbService());
   }
 }
 

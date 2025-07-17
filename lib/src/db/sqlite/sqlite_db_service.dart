@@ -3,44 +3,46 @@ import "dart:async";
 import "package:sqflite_common/sqlite_api.dart";
 
 import "../db_service.dart";
-import "sqlite_db.dart";
+import "../query_provider.dart";
 
 class SqliteDbService extends DbService {
-  SqliteDbService({required SqliteDb appDb}) : _appDb = appDb;
+  SqliteDbService(this.db);
 
-  final SqliteDb _appDb;
+  final Database db;
 
   @override
-  Future<void> delete(String itemID, String fromTable) async {
-    final Database db = await _appDb.database;
-    await db.delete(
-      fromTable,
-      where: "columnId = ?",
-      whereArgs: <Object?>[itemID],
-    );
+  Future<bool> delete(QueryProvider query) async {
+    return await db.delete(
+          query.table,
+          where: "${query.column} = ?",
+          whereArgs: [query.itemID],
+        ) ==
+        1;
   }
 
   @override
-  Future<void> insert(String table, Map<String, Object?> data) async {
-    final Database db = await _appDb.database;
-    await db.insert(table, data);
+  Future<bool> insert(QueryProvider query) async {
+    return await db.insert(query.table, query.data) == 1;
   }
 
   @override
-  Future<void> update(String table, Map<String, Object?> data) async {
-    final Database db = await _appDb.database;
-    await db.update(table, data);
+  Future<bool> update(QueryProvider query) async {
+    return await db.update(
+          query.table,
+          query.data,
+          where: "${query.column} = ?",
+          whereArgs: [query.itemID],
+        ) ==
+        1;
   }
 
   @override
-  Future<List<Map<String, Object?>>> retrieve(String fromTable) async {
-    final Database db = await _appDb.database;
-    return db.query(fromTable);
+  Future<List<Map<String, Object?>>> retrieve(QueryProvider query) async {
+    return db.query(query.table);
   }
 
   @override
-  Future<int> clear(String table) async {
-    final Database db = await _appDb.database;
-    return db.delete(table);
+  Future<bool> clear(QueryProvider query) async {
+    return await db.delete(query.table) == 1;
   }
 }

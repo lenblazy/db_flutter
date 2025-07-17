@@ -1,95 +1,112 @@
-import "package:db_flutter/src/db/sqlite/sqlite_db.dart";
+import "package:db_flutter/src/db/query_provider.dart";
 import "package:db_flutter/src/db/sqlite/sqlite_db_service.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
-import "package:sqflite_common/sqlite_api.dart";
+import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
-class MockSqliteDb extends Mock implements SqliteDb {}
-
-class MockDatabase extends Mock implements Database {}
+class MockQueryProvider extends Mock implements QueryProvider {}
 
 void main() {
   late SqliteDbService sut;
-  late MockSqliteDb mockSqliteDb;
-  late MockDatabase mockDatabase;
+  late Database db;
+  late MockQueryProvider mockQuery;
 
-  setUp(() {
-    mockSqliteDb = MockSqliteDb();
-    mockDatabase = MockDatabase();
-    sut = SqliteDbService(appDb: mockSqliteDb);
+  setUpAll(() async {
+    db = await databaseFactoryFfi.openDatabase(
+      inMemoryDatabasePath,
+      options: OpenDatabaseOptions(
+        version: 1,
+        onCreate: (Database db, int version) async {
+          await db.execute(
+            "CREATE TABLE Test (id INTEGER PRIMARY KEY, name TEXT)",
+          );
+        },
+      ),
+    );
 
-    when(() => mockSqliteDb.database).thenAnswer((_) async => mockDatabase);
+    mockQuery = MockQueryProvider();
+    sut = SqliteDbService(db);
   });
 
-  group("SqliteDbDao", () {
+  tearDownAll(() async {
+    db.close();
+  });
+
+  group("SqliteDbService Tests", () {
     test("insert calls insert on the database", () async {
-      const String table = "test_table";
-      final Map<String, String> data = <String, String>{"key": "value"};
+      when(() => mockQuery.table).thenReturn("Test");
+      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
 
-      when(() => mockDatabase.insert(table, data)).thenAnswer((_) async => 1);
-
-      await sut.insert(table, data);
-
-      verify(() => mockDatabase.insert(table, data)).called(1);
+      bool result = await sut.insert(mockQuery);
+      expect(result, true);
     });
 
-    test("update calls update on the database", () async {
-      const String table = "test_table";
-      final Map<String, String> data = <String, String>{"key": "updatedValue"};
+    test("retrieve returns data from the database", () async {
+      when(() => mockQuery.table).thenReturn("Test");
+      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
 
-      when(() => mockDatabase.update(table, data)).thenAnswer((_) async => 1);
+      await sut.insert(mockQuery);
+      final List<Map<String, Object?>> result = await sut.retrieve(mockQuery);
 
-      await sut.update(table, data);
-
-      verify(() => mockDatabase.update(table, data)).called(1);
+      expect(result.isNotEmpty, true);
     });
 
-    test("delete calls delete on the database with correct args", () async {
-      const String table = "test_table";
-      const String id = "123";
+    test("update makes changes on a record on the database", () async {
+      when(() => mockQuery.table).thenReturn("Test");
+      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.column).thenReturn("id");
+      when(() => mockQuery.itemID).thenReturn("1");
+
+      await sut.insert(mockQuery);
+      await sut.insert(mockQuery);
+      await sut.insert(mockQuery);
+      List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
+      expect(oldResult.first["name"], "test");
 
       when(
-        () => mockDatabase.delete(
-          table,
-          where: "columnId = ?",
-          whereArgs: <Object?>[id],
-        ),
-      ).thenAnswer((_) async => 1);
+        () => mockQuery.data,
+      ).thenReturn(<String, String>{"name": "updatedtest"});
 
-      await sut.delete(id, table);
+      await sut.update(mockQuery);
 
-      verify(
-        () => mockDatabase.delete(
-          table,
-          where: "columnId = ?",
-          whereArgs: <Object?>[id],
-        ),
-      ).called(1);
+      List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
+      expect(newResult.first["name"], "updatedtest");
     });
 
-    test("retrieve calls query on the database", () async {
-      const String table = "test_table";
-      final List<Map<String, String>> fakeData = <Map<String, String>>[
-        <String, String>{"key": "value"},
-      ];
+    test("delete removes a record on the database", () async {
+      when(() => mockQuery.table).thenReturn("Test");
+      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.column).thenReturn("id");
+      when(() => mockQuery.itemID).thenReturn("1");
 
-      when(() => mockDatabase.query(table)).thenAnswer((_) async => fakeData);
+      await sut.insert(mockQuery);
+      await sut.insert(mockQuery);
+      await sut.insert(mockQuery);
+      List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
 
-      final List<Map<String, Object?>> result = await sut.retrieve(table);
+      expect(oldResult.first.values.contains(1), true);
 
-      expect(result, fakeData);
-      verify(() => mockDatabase.query(table)).called(1);
+      sut.delete(mockQuery);
+
+      List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
+      expect(newResult.first.values.contains(1), false);
     });
 
-    test("clear calls delete on the database without where clause", () async {
-      const String table = "test_table";
+    test("clear deletes all records on the database table", () async {
+      when(() => mockQuery.table).thenReturn("Test");
+      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
 
-      when(() => mockDatabase.delete(table)).thenAnswer((_) async => 1);
+      await sut.insert(mockQuery);
+      await sut.insert(mockQuery);
+      await sut.insert(mockQuery);
+      List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
 
-      final int result = await sut.clear(table);
+      expect(oldResult.isNotEmpty, true);
 
-      expect(result, 1);
-      verify(() => mockDatabase.delete(table)).called(1);
+      sut.clear(mockQuery);
+
+      List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
+      expect(newResult.isEmpty, true);
     });
   });
 }
