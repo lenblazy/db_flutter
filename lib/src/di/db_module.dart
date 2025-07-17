@@ -1,12 +1,24 @@
-import "package:db_flutter/db.dart";
-import "package:db_flutter/src/db/dao/sqlite_db_dao.dart";
 import "package:injectable/injectable.dart";
+import "package:path/path.dart";
+import "package:sqflite_common/sqflite.dart";
 
+import "../../db.dart";
+import "../db/db_constants.dart";
+import "../db/sqlite/sqlite_db_service.dart";
+
+// coverage:ignore-file
 @module
 abstract class DbModule {
   @lazySingleton
-  AppDatabase appDatabase() => AppDatabase();
-
-  @lazySingleton
-  DbDao dao(AppDatabase appDb) => SqliteDbDao(appDb: appDb);
+  Future<DbService> dbService() async {
+    final String dbPath = await getDatabasesPath();
+    final String path = join(dbPath, DbConstants.dbName);
+    final Database db = await openDatabase(
+      path,
+      version: DbConstants.dbVersion,
+    );
+    return SqliteDbService(db);
+  }
 }
+
+// coverage:ignore-end

@@ -15,8 +15,7 @@ class DbFlutterPackageModule extends _i526.MicroPackageModule {
   @override
   _i687.FutureOr<void> init(_i526.GetItHelper gh) {
     final dbModule = _$DbModule();
-    gh.lazySingleton<_i344.AppDatabase>(() => dbModule.appDatabase());
-    gh.lazySingleton<_i344.DbDao>(() => dbModule.dao(gh<_i344.AppDatabase>()));
+    gh.lazySingletonAsync<_i344.DbService>(() => dbModule.dbService());
   }
 }
 
