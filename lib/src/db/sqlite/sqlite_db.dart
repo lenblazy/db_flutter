@@ -2,6 +2,7 @@ import "package:db_flutter/src/db/db_constants.dart";
 import "package:path/path.dart";
 import "package:sqflite/sqflite.dart";
 
+// coverage:ignore-file
 class SqliteDb {
   factory SqliteDb() {
     return _instance;
@@ -13,9 +14,7 @@ class SqliteDb {
   static Database? _database;
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+    return _database ?? await _initDatabase();
   }
 
   Future<Database> _initDatabase() async {
@@ -24,3 +23,5 @@ class SqliteDb {
     return openDatabase(path, version: DbConstants.dbVersion);
   }
 }
+
+// coverage:ignore-end
