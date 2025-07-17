@@ -29,7 +29,7 @@ void main() {
   });
 
   tearDownAll(() async {
-    db.close();
+    await db.close();
   });
 
   group("SqliteDbService Tests", () {
@@ -86,7 +86,7 @@ void main() {
 
       expect(oldResult.first.values.contains(1), true);
 
-      sut.delete(mockQuery);
+      await sut.delete(mockQuery);
 
       List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
       expect(newResult.first.values.contains(1), false);
@@ -103,7 +103,7 @@ void main() {
 
       expect(oldResult.isNotEmpty, true);
 
-      sut.clear(mockQuery);
+      await sut.clear(mockQuery);
 
       List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
       expect(newResult.isEmpty, true);
