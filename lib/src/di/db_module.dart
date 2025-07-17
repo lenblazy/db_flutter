@@ -1,12 +1,13 @@
 import "package:db_flutter/db.dart";
-import "package:db_flutter/src/db/dao/sqlite_db_dao.dart";
+import "package:db_flutter/src/db/sqlite/sqlite_db.dart";
+import "package:db_flutter/src/db/sqlite/sqlite_db_service.dart";
 import "package:injectable/injectable.dart";
 
 @module
 abstract class DbModule {
   @lazySingleton
-  AppDatabase appDatabase() => AppDatabase();
+  SqliteDb sqliteDb() => SqliteDb();
 
   @lazySingleton
-  DbDao dao(AppDatabase appDb) => SqliteDbDao(appDb: appDb);
+  DbService dbService(SqliteDb db) => SqliteDbService(appDb: db);
 }
