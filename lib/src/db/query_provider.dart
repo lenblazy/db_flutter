@@ -1,6 +1,8 @@
+import "entity.dart";
+
 mixin QueryProvider {
   String get table;
-  Map<String, Object?> get data;
+  Entity get data;
   QueryMethod get httpMethod;
   String get column;
   String get itemID;

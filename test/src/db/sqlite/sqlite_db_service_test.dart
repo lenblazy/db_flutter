@@ -1,3 +1,4 @@
+import "package:db_flutter/src/db/entity.dart";
 import "package:db_flutter/src/db/query_provider.dart";
 import "package:db_flutter/src/db/sqlite/sqlite_db_service.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -5,6 +6,8 @@ import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
 class MockQueryProvider extends Mock implements QueryProvider {}
+
+class MockEntity extends Mock implements Entity {}
 
 void main() {
   late SqliteDbService sut;
@@ -29,21 +32,25 @@ void main() {
   });
 
   tearDownAll(() async {
-    db.close();
+    await db.close();
   });
 
   group("SqliteDbService Tests", () {
     test("insert calls insert on the database", () async {
+      final data = MockEntity();
+      when(data.toMap).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.data).thenReturn(data);
       when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
 
       bool result = await sut.insert(mockQuery);
       expect(result, true);
     });
 
     test("retrieve returns data from the database", () async {
+      final data = MockEntity();
+      when(data.toMap).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.data).thenReturn(data);
       when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
 
       await sut.insert(mockQuery);
       final List<Map<String, Object?>> result = await sut.retrieve(mockQuery);
@@ -52,8 +59,11 @@ void main() {
     });
 
     test("update makes changes on a record on the database", () async {
+      var data = MockEntity();
+      when(data.toMap).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.data).thenReturn(data);
       when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.table).thenReturn("Test");
       when(() => mockQuery.column).thenReturn("id");
       when(() => mockQuery.itemID).thenReturn("1");
 
@@ -63,19 +73,20 @@ void main() {
       List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
       expect(oldResult.first["name"], "test");
 
-      when(
-        () => mockQuery.data,
-      ).thenReturn(<String, String>{"name": "updatedtest"});
+      when(data.toMap).thenReturn(<String, String>{"name": "updatedTest"});
+      when(() => mockQuery.data).thenReturn(data);
 
       await sut.update(mockQuery);
 
       List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
-      expect(newResult.first["name"], "updatedtest");
+      expect(newResult.first["name"], "updatedTest");
     });
 
     test("delete removes a record on the database", () async {
+      var data = MockEntity();
+      when(data.toMap).thenReturn(<String, String>{"name": "test"});
       when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.data).thenReturn(data);
       when(() => mockQuery.column).thenReturn("id");
       when(() => mockQuery.itemID).thenReturn("1");
 
@@ -86,15 +97,17 @@ void main() {
 
       expect(oldResult.first.values.contains(1), true);
 
-      sut.delete(mockQuery);
+      await sut.delete(mockQuery);
 
       List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
       expect(newResult.first.values.contains(1), false);
     });
 
     test("clear deletes all records on the database table", () async {
+      var data = MockEntity();
+      when(data.toMap).thenReturn(<String, String>{"name": "test"});
       when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+      when(() => mockQuery.data).thenReturn(data);
 
       await sut.insert(mockQuery);
       await sut.insert(mockQuery);
@@ -103,7 +116,7 @@ void main() {
 
       expect(oldResult.isNotEmpty, true);
 
-      sut.clear(mockQuery);
+      await sut.clear(mockQuery);
 
       List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
       expect(newResult.isEmpty, true);

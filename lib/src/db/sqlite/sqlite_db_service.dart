@@ -1,6 +1,6 @@
 import "dart:async";
 
-import "package:sqflite_common/sqlite_api.dart";
+import "package:sqflite/sqflite.dart";
 
 import "../db_service.dart";
 import "../query_provider.dart";
@@ -15,23 +15,23 @@ class SqliteDbService extends DbService {
     return await db.delete(
           query.table,
           where: "${query.column} = ?",
-          whereArgs: [query.itemID],
+          whereArgs: <Object?>[query.itemID],
         ) ==
         1;
   }
 
   @override
   Future<bool> insert(QueryProvider query) async {
-    return await db.insert(query.table, query.data) == 1;
+    return await db.insert(query.table, query.data.toMap()) == 1;
   }
 
   @override
   Future<bool> update(QueryProvider query) async {
     return await db.update(
           query.table,
-          query.data,
+          query.data.toMap(),
           where: "${query.column} = ?",
-          whereArgs: [query.itemID],
+          whereArgs: <Object?>[query.itemID],
         ) ==
         1;
   }
