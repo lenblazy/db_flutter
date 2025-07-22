@@ -1,6 +1,6 @@
 name: db_flutter
-description: "A new Flutter project."
-version: 0.0.1
+description: "A Database service package"
+version: 1.0.0
 homepage:
 
 environment:
@@ -15,7 +15,6 @@ dependencies:
   injectable:
   get_it:
 
-  sqflite_common: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

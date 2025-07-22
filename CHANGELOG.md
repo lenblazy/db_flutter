@@ -7,12 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-07-14
+
+### Added
+
+- Set up Database service
+- Added tests coverage to 100 percent
+- Used QueryProvider to fetch DB data
+
+### Changed 
+
+- Formatted code errors
+
 ## [0.0.1] - 2025-07-14
 
 ### Added
 
 - Added a ability to send requests
 
-[unreleased]: https://github.com/lenblazy/network_flutter/compare/release/0.0.1...develop
+[unreleased]: https://github.com/lenblazy/network_flutter/compare/release/1.0.0...develop
 
+[1.0.0]: https://github.com/lenblazy/network_flutter/releases/tag/v1.0.0
 [0.0.1]: https://github.com/lenblazy/network_flutter/releases/tag/v0.0.1
