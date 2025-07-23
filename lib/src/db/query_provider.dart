@@ -11,7 +11,7 @@ mixin QueryProvider<T extends Entity> {
   String get column => "id";
 
   /// Converts a row map into an entity
-  T fromMap(Map<String, Object?> map);
+  T fromMap(Map<String, dynamic> map);
 
   /// Optional WHERE clause (e.g., 'isActive = ?')
   String? get where => null;

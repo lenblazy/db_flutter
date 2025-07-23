@@ -24,8 +24,8 @@ class TestQueryProvider with QueryProvider<TestEntity> {
   Object get itemID => id;
 
   @override
-  TestEntity fromMap(Map<String, Object?> map) {
-    return TestEntity(id: map["id"] as int, name: map["name"] as String);
+  TestEntity fromMap(Map<String, dynamic> map) {
+    return TestEntity(id: map["id"], name: map["name"]);
   }
 }
 
@@ -56,7 +56,7 @@ class FilteredQueryProvider with QueryProvider<TestEntity> {
   List<Object?>? get whereArgs => [id];
 
   @override
-  TestEntity fromMap(Map<String, Object?> map) {
-    return TestEntity(id: map["id"] as int, name: map["name"] as String);
+  TestEntity fromMap(Map<String, dynamic> map) {
+    return TestEntity(id: map["id"], name: map["name"]);
   }
 }
