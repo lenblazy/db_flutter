@@ -3,46 +3,67 @@ import "dart:async";
 import "package:sqflite/sqflite.dart";
 
 import "../db_service.dart";
+import "../entity.dart";
 import "../query_provider.dart";
 
-class SqliteDbService extends DbService {
-  SqliteDbService(this.db);
-
+class SqliteDbService implements DbService {
+  const SqliteDbService(this.db);
   final Database db;
 
   @override
-  Future<bool> delete(QueryProvider query) async {
-    return await db.delete(
-          query.table,
-          where: "${query.column} = ?",
-          whereArgs: [query.itemID],
-        ) ==
-        1;
+  Future<int> insert<T extends Entity>(QueryProvider<T> query, T entity) async {
+    return db.insert(query.table, entity.toMap());
   }
 
   @override
-  Future<bool> insert(QueryProvider query) async {
-    return await db.insert(query.table, query.data) == 1;
+  Future<List<T>> retrieve<T extends Entity>(QueryProvider<T> query) async {
+    final result = await db.query(
+      query.table,
+      where: query.where,
+      whereArgs: query.whereArgs,
+      orderBy: query.orderBy,
+      limit: query.limit,
+    );
+    return result.map(query.fromMap).toList();
   }
 
   @override
-  Future<bool> update(QueryProvider query) async {
-    return await db.update(
-          query.table,
-          query.data,
-          where: "${query.column} = ?",
-          whereArgs: [query.itemID],
-        ) ==
-        1;
+  Future<T?> getById<T extends Entity>(QueryProvider<T> query) async {
+    final result = await db.query(
+      query.table,
+      where: "${query.column} = ?",
+      whereArgs: [query.itemID],
+      limit: 1,
+    );
+    return result.isEmpty ? null : query.fromMap(result.first);
   }
 
   @override
-  Future<List<Map<String, Object?>>> retrieve(QueryProvider query) async {
-    return db.query(query.table);
+  Future<bool> update<T extends Entity>(
+    QueryProvider<T> query,
+    T entity,
+  ) async {
+    final count = await db.update(
+      query.table,
+      entity.toMap(),
+      where: "${entity.primaryKeyColumn} = ?",
+      whereArgs: [entity.primaryKeyValue],
+    );
+    return count > 0;
   }
 
   @override
-  Future<bool> clear(QueryProvider query) async {
-    return await db.delete(query.table) == 1;
+  Future<bool> delete<T extends Entity>(QueryProvider<T> query) async {
+    final count = await db.delete(
+      query.table,
+      where: "${query.column} = ?",
+      whereArgs: [query.itemID],
+    );
+    return count > 0;
+  }
+
+  @override
+  Future<bool> clear<T extends Entity>(QueryProvider<T> query) async {
+    return await db.delete(query.table) > 0;
   }
 }

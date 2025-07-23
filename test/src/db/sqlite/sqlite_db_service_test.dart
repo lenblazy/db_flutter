@@ -1,15 +1,12 @@
-import "package:db_flutter/src/db/query_provider.dart";
 import "package:db_flutter/src/db/sqlite/sqlite_db_service.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
-class MockQueryProvider extends Mock implements QueryProvider {}
+import "helpers/helpers.dart";
 
 void main() {
   late SqliteDbService sut;
   late Database db;
-  late MockQueryProvider mockQuery;
 
   setUpAll(() async {
     db = await databaseFactoryFfi.openDatabase(
@@ -24,7 +21,6 @@ void main() {
       ),
     );
 
-    mockQuery = MockQueryProvider();
     sut = SqliteDbService(db);
   });
 
@@ -33,80 +29,86 @@ void main() {
   });
 
   group("SqliteDbService Tests", () {
-    test("insert calls insert on the database", () async {
-      when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+    test("insert inserts the entity into the database", () async {
+      final entity = TestEntity(id: 1, name: "test");
+      final provider = TestQueryProvider(entity.id);
 
-      bool result = await sut.insert(mockQuery);
-      expect(result, true);
+      final result = await sut.insert(provider, entity);
+      expect(result, 1);
     });
 
-    test("retrieve returns data from the database", () async {
-      when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+    test("retrieve returns entities mapped from database rows", () async {
+      final entity = TestEntity(id: 2, name: "test");
+      final provider = TestQueryProvider(entity.id);
 
-      await sut.insert(mockQuery);
-      final List<Map<String, Object?>> result = await sut.retrieve(mockQuery);
+      await sut.insert(provider, entity);
 
-      expect(result.isNotEmpty, true);
+      final result = await sut.retrieve(provider);
+      expect(result.first.name, "test");
     });
 
-    test("update makes changes on a record on the database", () async {
-      when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
-      when(() => mockQuery.column).thenReturn("id");
-      when(() => mockQuery.itemID).thenReturn("1");
+    test("update modifies an existing entity in the database", () async {
+      final entity = TestEntity(id: 3, name: "old");
+      final provider = FilteredQueryProvider(entity.id);
+      await sut.insert(provider, entity);
 
-      await sut.insert(mockQuery);
-      await sut.insert(mockQuery);
-      await sut.insert(mockQuery);
-      List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
-      expect(oldResult.first["name"], "test");
+      final updatedEntity = TestEntity(id: 3, name: "updated");
+      final success = await sut.update(provider, updatedEntity);
+      expect(success, isTrue);
 
-      when(
-        () => mockQuery.data,
-      ).thenReturn(<String, String>{"name": "updatedtest"});
-
-      await sut.update(mockQuery);
-
-      List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
-      expect(newResult.first["name"], "updatedtest");
+      final result = await sut.retrieve(provider);
+      expect(result.first.name, "updated");
     });
 
-    test("delete removes a record on the database", () async {
-      when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
-      when(() => mockQuery.column).thenReturn("id");
-      when(() => mockQuery.itemID).thenReturn("1");
+    test("delete removes a record from the database", () async {
+      final entity = TestEntity(id: 4, name: "to-delete");
+      final provider = FilteredQueryProvider(entity.id);
+      await sut.insert(provider, entity);
 
-      await sut.insert(mockQuery);
-      await sut.insert(mockQuery);
-      await sut.insert(mockQuery);
-      List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
+      final deleted = await sut.delete(provider);
+      expect(deleted, isTrue);
 
-      expect(oldResult.first.values.contains(1), true);
-
-      await sut.delete(mockQuery);
-
-      List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
-      expect(newResult.first.values.contains(1), false);
+      final result = await sut.retrieve(provider);
+      expect(result.isEmpty, true);
     });
 
-    test("clear deletes all records on the database table", () async {
-      when(() => mockQuery.table).thenReturn("Test");
-      when(() => mockQuery.data).thenReturn(<String, String>{"name": "test"});
+    test("clear deletes all records in the table", () async {
+      for (var i = 5; i < 8; i++) {
+        final entity = TestEntity(id: i, name: "bulk");
+        final provider = FilteredQueryProvider(i);
+        await sut.insert(provider, entity);
+      }
 
-      await sut.insert(mockQuery);
-      await sut.insert(mockQuery);
-      await sut.insert(mockQuery);
-      List<Map<String, Object?>> oldResult = await sut.retrieve(mockQuery);
+      final provider = TestQueryProvider(5); // Just to get `table` value
+      final cleared = await sut.clear(provider);
+      expect(cleared, isTrue);
 
-      expect(oldResult.isNotEmpty, true);
+      final remaining = await sut.retrieve(provider);
+      expect(remaining.isEmpty, true);
+    });
 
-      await sut.clear(mockQuery);
+    test("retrieve returns empty list if no match found", () async {
+      final provider = FilteredQueryProvider(999); // ID that doesn't exist
+      final result = await sut.retrieve(provider);
+      expect(result, isEmpty);
+    });
 
-      List<Map<String, Object?>> newResult = await sut.retrieve(mockQuery);
-      expect(newResult.isEmpty, true);
+    test("getById returns correct record using QueryProvider.column", () async {
+      final entity = TestEntity(id: 100, name: "Exact Match");
+      final provider = TestQueryProvider(100);
+      await sut.insert(provider, entity);
+
+      final result = await sut.getById(provider);
+      expect(result?.name, "Exact Match");
+    });
+
+    test("insert and retrieve with different QueryProvider column", () async {
+      final entity = TestEntity(id: 101, name: "Column Test");
+      final provider = FilteredQueryProvider(101);
+      await sut.insert(provider, entity);
+
+      final result = await sut.retrieve(provider);
+      expect(result.first.name, "Column Test");
     });
   });
 }
