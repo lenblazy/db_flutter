@@ -42,8 +42,8 @@ void main() {
       when(() => mockQuery.data).thenReturn(data);
       when(() => mockQuery.table).thenReturn("Test");
 
-      bool result = await sut.insert(mockQuery);
-      expect(result, true);
+      final result = await sut.insert(mockQuery);
+      expect(result, 1);
     });
 
     test("retrieve returns data from the database", () async {

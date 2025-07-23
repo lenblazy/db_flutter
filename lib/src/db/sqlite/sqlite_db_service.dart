@@ -21,8 +21,8 @@ class SqliteDbService extends DbService {
   }
 
   @override
-  Future<bool> insert(QueryProvider query) async {
-    return await db.insert(query.table, query.data.toMap()) == 1;
+  Future<int> insert(QueryProvider query) async {
+    return db.insert(query.table, query.data.toMap());
   }
 
   @override
