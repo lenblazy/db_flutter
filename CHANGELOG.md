@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-07-23
+
+### Added
+
+- Added Entity class for storing db data
+
+### Changed
+
+- Changed return type of insert method from `bool` to `int`
+- Changed return type of retrieve method from `Map` to generic that extends `Entity`
+
 ## [1.0.0] - 2025-07-14
 
 ### Added
@@ -25,7 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added a ability to send requests
 
-[unreleased]: https://github.com/lenblazy/network_flutter/compare/release/1.0.0...develop
+[unreleased]: https://github.com/lenblazy/network_flutter/compare/release/1.1.0...develop
 
+[1.1.0]: https://github.com/lenblazy/network_flutter/releases/tag/v1.1.0
 [1.0.0]: https://github.com/lenblazy/network_flutter/releases/tag/v1.0.0
 [0.0.1]: https://github.com/lenblazy/network_flutter/releases/tag/v0.0.1
