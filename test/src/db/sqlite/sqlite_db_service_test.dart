@@ -5,8 +5,6 @@ import "package:db_flutter/src/db/base/query_provider.dart";
 import "package:db_flutter/src/db/sqlite/sqlite_db_service.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
-import "package:sqflite/sqflite.dart" show DatabaseException;
-import "package:sqflite_common/sqflite.dart";
 import "package:sqflite_common/src/exception.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 

@@ -10,7 +10,7 @@ void main() {
     DbService? service;
 
     expect(service, isNull);
-    expect(() => initDbPackage(), returnsNormally);
+    expect(initDbPackage, returnsNormally);
   });
 
   test("Entity exposes the default primary key column", () {
