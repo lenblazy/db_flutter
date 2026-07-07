@@ -4,7 +4,7 @@ import "package:sqflite_common/sqflite.dart";
 import "package:storage_flutter/storage.dart";
 
 import "../../db.dart";
-import "../db/db_constants.dart";
+import "../db/base/db_constants.dart";
 import "../db/sqlite/sqlite_db_service.dart";
 
 // coverage:ignore-file
